@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom"
-import { useRecoilState } from "recoil"
+import { useRecoilValue, useRecoilState } from "recoil"
 import { roleState } from "../../atoms/roleState"
+import { tokenState } from "../../atoms/tokenState"
 
 export const Main = () => {
     const [role, setRole] = useRecoilState(roleState);
+    const token = useRecoilValue(tokenState);
     return (
         <div className="px-2 relative">
             <h1 className="text-white text-5xl font-semibold select-none">Become a Developer</h1>
@@ -14,17 +16,24 @@ export const Main = () => {
                     className="font-semibold p-5 bg-blue-500 rounded"
                     to="/login"
                 >
-                    Get Started
+                    {
+                        (!token) ? "Get Started" : "Go to Dashboard"
+                    }
                 </Link>
-                <select
-                    value={role}
-                    onChange={(e) => setRole(e.target.value)}
-                    className="text-gray-900 p-3 rounded text-lg font-semibold"
-                >
-                    <option value="stu" >Student</option>
-                    <option value="cmpny">Company</option>
-                    <option value="tpo" >TPO</option>
-                </select>
+                {
+                    (!token) ?
+                        <select
+                            value={role}
+                            onChange={(e) => setRole(e.target.value)}
+                            className="text-gray-900 p-3 rounded text-lg font-semibold"
+                        >
+                            <option value="stu" >Student</option>
+                            <option value="cmpny">Company</option>
+                            <option value="tpo" >TPO</option>
+                        </select>
+                        :
+                        ""
+                }
             </div>
         </div>
     );

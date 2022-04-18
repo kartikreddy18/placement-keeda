@@ -5,6 +5,8 @@ import { roleState } from "../atoms/roleState"
 import toast, { Toaster } from 'react-hot-toast';
 import { userState } from "../atoms/user"
 import { tokenState } from "../atoms/tokenState"
+import axios from "axios";
+import { HiOutlineEye, HiOutlineEyeOff } from "react-icons/hi";
 
 export const Login = () => {
     const [email, setEmail] = useState("");
@@ -13,32 +15,43 @@ export const Login = () => {
     const [token, setToken] = useRecoilState(tokenState);
     const navigate = useNavigate();
     const [user, setUser] = useRecoilState(userState);
+    const [eye, setEye] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const baseUrl = "http://localhost:8080"
-        let res = await fetch(`${baseUrl}/api/log${role}`,
-            {
-                method: "post",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ "email": email, "password": passwd })
-            });
-        const result = await res.text();
-        if (res.status === 200) {
-            setToken(result);
-            setUser({
-                email: email,
-                password: passwd,
-            })
-            navigate(`/${role}`);
-        }
-        else {
-            setEmail("");
-            setPasswd("");
-            toast.error(`Invalid email or password for ${role}`);
-        }
+        await axios.post(`http://localhost:8080/api/log${role}`, {
+            email: email,
+            password: passwd
+        }).then(res => {
+            if (res.data && res.status === 200) {
+                setToken(res.data);
+                currUser(res.data)
+            }
+            else
+                toast.error("Invalid Email or Password!")
+        }).catch(error => {
+            console.error(error);
+        })
+    }
+
+    const currUser = async (token) => {
+        await axios.get(`http://localhost:8080/api/log${role}/me`, {
+            headers: {
+                "x-auth-token": token
+            }
+        }).then(res => {
+            if (res.status === 200) {
+                localStorage.setItem(`${role}`, JSON.stringify(res.data))
+                setUser({
+                    ...res.data,
+                    password: passwd
+                })
+                navigate(`/${role}`);
+            }
+            else
+                toast.error(`Access Denied. No token provided for ${role}`)
+
+        }).catch(error => console.error(error))
     }
 
     return (
@@ -52,20 +65,42 @@ export const Login = () => {
                 <div>
                     <form action="post" className="grid place-items-center ">
                         <div>
-                            <h1 className="p-1">Email</h1>
+                            <h1 className="p-1 font-semibold">Email</h1>
                             <input type="email" placeholder="Email"
                                 className="p-2 rounded text-gray-800 text-lg font-semibold"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
+                                required={true}
+                                autoComplete="off"
                             />
                         </div>
                         <div>
-                            <h1 className="p-1">Password</h1>
-                            <input type="password" placeholder="Password"
-                                className="p-2 rounded text-gray-800 text-lg font-semibold"
-                                value={passwd}
-                                onChange={e => setPasswd(e.target.value)}
-                            />
+                            <h1 className="p-1 font-semibold">Password</h1>
+                            {
+                                (!eye) ?
+                                    <div className="flex space-x-2 items-center">
+                                        <input type="password" value={passwd}
+                                            onChange={e => setPasswd(e.target.value)}
+                                            className="p-2 rounded font-semibold text-gray-800"
+                                            placeholder="Password"
+                                            required={true}
+                                            autoComplete="off"
+                                        />
+                                        <HiOutlineEyeOff onClick={() => setEye(true)} className="h-6 w-6 cursor-pointer" />
+                                    </div>
+                                    :
+                                    <div className="flex space-x-2 items-center">
+                                        <input type="text" value={passwd}
+                                            onChange={e => setPasswd(e.target.value)}
+                                            className="p-2 rounded font-semibold text-gray-800"
+                                            placeholder="Password"
+                                            required={true}
+                                            autoComplete="off"
+                                        />
+                                        <HiOutlineEye onClick={() => setEye(false)} className="h-6 w-6 cursor-pointer" />
+                                    </div>
+                            }
+
                         </div>
                         <button
                             type="submit"

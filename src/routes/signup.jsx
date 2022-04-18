@@ -4,7 +4,8 @@ import toast, { Toaster } from "react-hot-toast"
 import { roleState } from "../atoms/roleState"
 import { useRecoilValue, useRecoilState } from "recoil"
 import { userState } from "../atoms/user"
-
+import axios from "axios"
+import { HiOutlineEye, HiOutlineEyeOff } from "react-icons/hi";
 
 export const SignUp = () => {
     const [name, setName] = useState("");
@@ -16,41 +17,32 @@ export const SignUp = () => {
     const role = useRecoilValue(roleState);
     const navigate = useNavigate();
     const [user, setUser] = useRecoilState(userState);
+    const [eye, setEye] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         const baseUrl = "http://localhost:8080"
-        let token = await fetch(`${baseUrl}/api/${role}`,
-            {
-                method: "post",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    "name": name,
-                    "email": email,
-                    "password": passwd,
-                    "address": address,
-                    "webLink": webLink,
-                    "contactNo": contactNo
-                })
-            });
-        if (token.status !== 400) {
-            setUser({
-                email: email,
-                password: passwd
-            })
-            navigate(`/login`);
-        }
-        else {
-            setEmail("");
-            setPasswd("");
-            setName("");
-            setWebLink([]);
-            setAddress("");
-            setContactNo("");
-            toast.error(`${role} already exists`);
-        }
+        await axios.post(`${baseUrl}/api/${role}`, {
+            name: name,
+            email: email,
+            password: passwd,
+            address: address,
+            webLink: webLink,
+            contactNo: contactNo
+        }).then(res => {
+            if (res.data) {
+                setUser({
+                    ...res.data,
+                    password: passwd
+                });
+                console.log(res.data, user);
+                navigate('/login');
+            }
+            return res
+        }).catch(res => {
+            if (res.status !== 200)
+                toast.error(`${role} Already Exist!`)
+        })
     }
 
     return (
@@ -68,6 +60,8 @@ export const SignUp = () => {
                             className="p-2 rounded text-gray-800 text-lg font-semibold"
                             value={name}
                             onChange={e => setName(e.target.value)}
+                            required={true}
+                            autoComplete="off"
                         />
 
                         <h1 className="p-1 font-semibold">Email</h1>
@@ -75,18 +69,45 @@ export const SignUp = () => {
                             className="p-2 rounded text-gray-800 text-lg font-semibold"
                             value={email}
                             onChange={e => setEmail(e.target.value)}
+                            required={true}
+                            autoComplete="off"
                         />
-                        <h1 className="p-1 font-semibold">Password</h1>
-                        <input type="password" placeholder="Password"
-                            className="p-2 rounded text-gray-800 text-lg font-semibold"
-                            value={passwd}
-                            onChange={e => setPasswd(e.target.value)}
-                        />
+                        <div>
+                            <h1 className="p-1 font-semibold">Password</h1>
+                            {
+                                (!eye) ?
+                                    <div className="flex space-x-2 items-center">
+                                        <input type="password" value={passwd}
+                                            onChange={e => setPasswd(e.target.value)}
+                                            className="p-2 rounded font-semibold"
+                                            placeholder="Password"
+                                            required={true}
+                                            autoComplete="off"
+                                        />
+                                        <HiOutlineEyeOff onClick={() => setEye(true)} className="h-6 w-6 cursor-pointer" />
+
+                                    </div>
+                                    :
+                                    <div className="flex space-x-2 items-center">
+                                        <input type="text" value={passwd}
+                                            onChange={e => setPasswd(e.target.value)}
+                                            className="p-2 rounded font-semibold"
+                                            placeholder="Password"
+                                            required={true}
+                                            autoComplete="off"
+                                        />
+                                        <HiOutlineEye onClick={() => setEye(false)} className="h-6 w-6 cursor-pointer" />
+                                    </div>
+                            }
+
+                        </div>
                         <h1 className="p-1 font-semibold">WebLink</h1>
                         <input type="url" placeholder="WebLink"
                             className="p-2 rounded text-gray-800 text-lg font-semibold"
                             value={webLink}
                             onChange={e => setWebLink([e.target.value])}
+                            required={true}
+                            autoComplete="off"
                         />
                     </div>
                     <div>
@@ -95,12 +116,16 @@ export const SignUp = () => {
                             className="p-1 mt-10 font-semibold"
                             value={address}
                             onChange={e => setAddress(e.target.value)}
+                            required={true}
+                            autoComplete="off"
                         ></textarea>
                         <h1 className="p-1 font-semibold">Contact No</h1>
                         <input type="text" placeholder="Contact No"
                             className="p-2 rounded text-gray-800 text-lg font-semibold"
                             value={contactNo}
                             onChange={e => setContactNo(e.target.value)}
+                            required={true}
+                            autoComplete="off"
                         />
                     </div>
                 </div>
