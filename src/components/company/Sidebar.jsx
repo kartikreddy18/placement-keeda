@@ -33,7 +33,7 @@ export const Sidebar = () => {
     }
 
     return (
-        <div className="-translate-x-10 -translate-y-10 w-96 min-h-screen bg-gray-900 text-white font-semibold p-10">
+        <div className="-translate-x-10 -translate-y-10 px-20 min-h-screen bg-gray-900 text-white font-semibold p-10">
             <Logo />
             <div className="mt-8 -ml-10 p-2 grid place-items-center gap-5 select-none" >
                 <div className="cursor-pointer group" ref={uploader} onClick={() => {

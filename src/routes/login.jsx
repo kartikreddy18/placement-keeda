@@ -27,10 +27,10 @@ export const Login = () => {
                 setToken(res.data);
                 currUser(res.data)
             }
-            else
-                toast.error("Invalid Email or Password!")
+            // else
+            //     toast.error("Invalid Email or Password!")
         }).catch(error => {
-            console.error(error);
+            toast.error("Invalid Email or Password!")
         })
     }
 
@@ -48,10 +48,11 @@ export const Login = () => {
                 })
                 navigate(`/${role}`);
             }
-            else
-                toast.error(`Access Denied. No token provided for ${role}`)
+            // else {
+            //     toast.error(`Access Denied. No token provided for ${role}`)
+            // }
 
-        }).catch(error => console.error(error))
+        }).catch(error => toast.error(`Access Denied. No token provided for ${role}`))
     }
 
     return (
@@ -83,7 +84,7 @@ export const Login = () => {
                                             onChange={e => setPasswd(e.target.value)}
                                             className="p-2 rounded font-semibold text-gray-800"
                                             placeholder="Password"
-                                            required={true}
+                                            required
                                             autoComplete="off"
                                         />
                                         <HiOutlineEyeOff onClick={() => setEye(true)} className="h-6 w-6 cursor-pointer" />
@@ -94,7 +95,7 @@ export const Login = () => {
                                             onChange={e => setPasswd(e.target.value)}
                                             className="p-2 rounded font-semibold text-gray-800"
                                             placeholder="Password"
-                                            required={true}
+                                            required
                                             autoComplete="off"
                                         />
                                         <HiOutlineEye onClick={() => setEye(false)} className="h-6 w-6 cursor-pointer" />

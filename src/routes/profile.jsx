@@ -19,9 +19,9 @@ export const Profile = () => {
     const [eye, setEye] = useState(false);
 
     return (
-        <div className="p-5 -translate-x-[10rem]">
+        <div className="">
             <form action="post" className="grid  space-y-10 mt-10 text-xl font-semibold">
-                <div className="grid grid-cols-2 space-x-24">
+                <div className="grid grid-cols-2 space-x-20">
                     <div className="space-y-10">
                         <div>
                             <p>Id</p>

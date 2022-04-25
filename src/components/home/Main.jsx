@@ -14,7 +14,7 @@ export const Main = () => {
             <div className="mt-10 text-xl space-x-5 text-white">
                 <Link
                     className="font-semibold p-5 bg-blue-500 rounded"
-                    to="/login"
+                    to={`${token ? `/${role}` : "/login"}`}
                 >
                     {
                         (!token) ? "Get Started" : "Go to Dashboard"
